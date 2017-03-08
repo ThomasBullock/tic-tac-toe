@@ -44,16 +44,18 @@ class Board extends React.Component {
     };
     this.winner = null;
   }
-  handleClick(i) {
-     
-  const squares = this.state.squares.slice();  ///copy the squares array instead of mutating original
-   if(this.state.gameOver) {
-    return;
-   }
-    squares[i] = this.state.xNext ? 'X' : 'O';
-    this.setState({squares: squares,
-                    xNext : !this.state.xNext,
-    });
+
+  handleClick(i) {    
+    const squares = this.state.squares.slice();  ///copy the squares array instead of mutating original
+     if(this.state.gameOver || this.state.squares[i] !== null) {
+      return;
+     }
+
+      squares[i] = this.state.xNext ? 'X' : 'O';
+      this.setState({squares: squares,
+                      xNext : !this.state.xNext,
+      });
+
   }
 
   componentDidUpdate() {
