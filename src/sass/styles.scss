@@ -7,6 +7,12 @@ ol, ul {
   padding-left: 30px;
 }
 
+.playerSelect-btn {
+   background: #EEE;
+   padding: .5em;
+   font-size: 1em;
+}
+
 .board-row {
   display: flex;
 }
@@ -19,14 +25,24 @@ ol, ul {
 }
 
 .status {
-  margin-bottom: 10px;
+  min-height: 30px;
+  text-align: center;
+  font-size: 1.6em;
+  margin-bottom: 20px;
+  
+  button {
+    padding-top: 0;
+    padding-bottom: 0;
+    &:hover {
+      background: #DFD;
+      cursor: pointer;
+    }
+  }
 }
 
 .square {
   flex: 1 1 33%;
   background: #fff;
-  // border: 1px solid #999;
-  // float: left;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
@@ -35,7 +51,10 @@ ol, ul {
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  // width: 80px;
+}
+
+.availableSquare {
+    background: #dfd;
 }
 
 button {
@@ -61,7 +80,6 @@ button {
   background-color: black;
   width: 315px;
   height: 5px;
-
 }
 
 .vertical {
@@ -70,7 +88,7 @@ button {
   height: 315px;
 }
 .square:nth-child(1) {
-  // background: green;
+
 }
 
 
@@ -79,12 +97,10 @@ button {
 }
 
 .kbd-navigation .square:focus {
-  // background: #ddd;
+
 }
 
 .game {
-  // display: flex;
-  // flex-direction: row;
   width: 315px;
   margin: 1em auto;
 }

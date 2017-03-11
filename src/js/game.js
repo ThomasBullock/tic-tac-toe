@@ -2,23 +2,69 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+var classNames = require('classnames');
+
 import '../sass/styles.scss';
 
 function random(range) {
   return Math.floor(Math.random() * range);
 }
 
-//// SQUARE //////
 
 // stateless functional components
-function Square(props) {
-
-    return (
-      <button className="square" onClick={() => props.onClick()}>
-        {props.value}
+function PlayerSelect(props) {
+  return (
+    <div className="playerSelect">
+      Do you want to be 
+      <button className="playerSelect-btn" data-player="X" data-comp="O" onClick={(e) => props.onClick(e)}>
+        X
       </button>
-    );
+        or 
+      <button className="playerSelect-btn" data-player="O" data-comp="X"  onClick={(e) => props.onClick(e)}>
+        O
+      </button>
+        ?
+    </div>            
+  )  
+}
 
+//// SQUARE //////
+
+class Square extends React.Component {
+    constructor() {
+      super();
+      this.onMouseOver = this.onMouseOver.bind(this);
+      this.onMouseLeave = this.onMouseLeave.bind(this);      
+      this.state = {
+        isHovered: false,
+      };
+            
+    }
+
+    onMouseOver(i) {
+      if(this.props.value === null) {
+        this.setState({isHovered: true});
+      }
+    }
+    
+    onMouseLeave(i) {
+      this.setState({isHovered: false});
+    }    
+  
+    render() {
+    
+      var btnClass = classNames({
+        square: true,
+        availableSquare: this.state.isHovered
+      });
+      
+      return <button className={btnClass} 
+                     onClick={() => this.props.onClick()} 
+                     onMouseOver={() => this.onMouseOver() }
+                     onMouseLeave={() => this.onMouseLeave() }
+                     >{this.props.value}</button>   
+
+    }
 }
 
 
@@ -28,7 +74,10 @@ class Board extends React.Component {
   constructor() {
     super();
     this.state = {
+      gameStarted: false,
       gameOver: false,
+      player: null,
+      computer: null,
       squares: Array(9).fill(null),
       xNext: true,
       lines: [
@@ -43,20 +92,34 @@ class Board extends React.Component {
       ]     
     };
     this.winner = null;
+    this.baseState = this.state;
   }
 
-  handleClick(i) {    
-    const squares = this.state.squares.slice();  ///copy the squares array instead of mutating original
-     if(this.state.gameOver || this.state.squares[i] !== null) {
-      return;
-     }
+  handleClick(i) {  
+    if(!this.state.gameStarted) {
+      return
+    } else {
+      const squares = this.state.squares.slice();  ///copy the squares array instead of mutating original
+       if(this.state.gameOver || this.state.squares[i] !== null) {  // prevent clicks on already selected squares
+        return;
+       }
 
-      squares[i] = this.state.xNext ? 'X' : 'O';
-      this.setState({squares: squares,
-                      xNext : !this.state.xNext,
-      });
-
+        squares[i] = this.state.player;
+        this.setState({squares: squares,
+                        xNext : !this.state.xNext,
+        });
+    }
   }
+  
+  selectClick(e) {
+    console.dir(e.target.dataset);
+
+    this.setState({player: e.target.dataset.player,
+                    computer: e.target.dataset.comp,
+                    gameStarted: true
+    });
+  }
+  
 
   componentDidUpdate() {
     if(!this.state.gameOver) {
@@ -70,7 +133,7 @@ class Board extends React.Component {
         if(!this.state.gameOver) { 
           this.computerMove() 
         } 
-      }) , 500);      
+      }) , 1500);      
     }   
   }
  
@@ -93,13 +156,13 @@ class Board extends React.Component {
       
       console.log(selection);
       const squares = this.state.squares.slice();
-      squares[selection] = 'O';       
+      squares[selection] = this.state.computer;      
       this.setState({squares: squares,
                       xNext : !this.state.xNext,
       });  
   }
   
-  blockOrCompleteLine() {
+  blockOrCompleteLine() {  // simple AI for computer
     // iterate through state.lines 
     var memIndex, choice;
     this.state.lines.forEach( (straight) => {
@@ -109,7 +172,6 @@ class Board extends React.Component {
         let x = 0
         let o = 0
       straight.forEach( (cell, index) => {
-        // console.log(this.state.squares[cell]);
         if(this.state.squares[cell] === null) {
           empty++
           memIndex = index;
@@ -119,8 +181,6 @@ class Board extends React.Component {
           o++;
         }
         if( (x === 2 || o === 2) && empty === 1 ) {
-          // console.log(straight + " is the choice at " + memIndex);
-          // console.log(straight[memIndex]);
           choice = straight[memIndex];
         }
       })
@@ -136,7 +196,16 @@ class Board extends React.Component {
     if(this.state.gameOver) {
       return (this.winner) ? 'The winner is: ' + this.winner : 'There was no winner....'; 
     } else {
-      return 'Next player: ' + (this.state.xNext ? 'X' : 'O');
+      if(this.state.player !== null) {
+        if(this.state.xNext) {
+          return `${this.state.player} : Your turn`;
+        } else {
+          return `${this.state.computer}: Computers turn`;
+        }        
+      } else {
+        return <PlayerSelect onClick={ (e) => this.selectClick(e) }  />
+      }
+
     }
   }
   
@@ -157,7 +226,12 @@ class Board extends React.Component {
   }  
   
   render() {
-    let status = this.statusMessage() 
+    let status = this.statusMessage()
+    if(this.state.gameOver) {
+      setTimeout( (() => { 
+          this.setState(this.baseState)
+      }) , 3000);          
+    } 
 
     return (
       <div>
