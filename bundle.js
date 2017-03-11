@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/motbook/Sites/tic-tac-toe/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/motbook/Sites/tic-tac-toe/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kingston/Sites/Tic Tac Toe/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kingston/Sites/Tic Tac Toe/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -71,61 +71,156 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } //Libs
 
 
+	var classNames = __webpack_require__(182);
+
 	function random(range) {
 	  return Math.floor(Math.random() * range);
 	}
 
-	//// SQUARE //////
-
 	// stateless functional components
-	function Square(props) {
-
+	function PlayerSelect(props) {
 	  return _react2.default.createElement(
-	    'button',
-	    { className: 'square', onClick: function onClick() {
-	        return props.onClick();
-	      } },
-	    props.value
+	    'div',
+	    { className: 'playerSelect' },
+	    'Do you want to be',
+	    _react2.default.createElement(
+	      'button',
+	      { className: 'playerSelect-btn', 'data-player': 'X', 'data-comp': 'O', onClick: function onClick(e) {
+	          return props.onClick(e);
+	        } },
+	      'X'
+	    ),
+	    'or',
+	    _react2.default.createElement(
+	      'button',
+	      { className: 'playerSelect-btn', 'data-player': 'O', 'data-comp': 'X', onClick: function onClick(e) {
+	          return props.onClick(e);
+	        } },
+	      'O'
+	    ),
+	    '?'
 	  );
 	}
 
+	//// SQUARE //////
+
+	var Square = function (_React$Component) {
+	  _inherits(Square, _React$Component);
+
+	  function Square() {
+	    _classCallCheck(this, Square);
+
+	    var _this = _possibleConstructorReturn(this, (Square.__proto__ || Object.getPrototypeOf(Square)).call(this));
+
+	    _this.onMouseOver = _this.onMouseOver.bind(_this);
+	    _this.onMouseLeave = _this.onMouseLeave.bind(_this);
+	    _this.state = {
+	      isHovered: false
+	    };
+
+	    return _this;
+	  }
+
+	  _createClass(Square, [{
+	    key: 'onMouseOver',
+	    value: function onMouseOver(i) {
+	      if (this.props.value === null) {
+	        this.setState({ isHovered: true });
+	      }
+	    }
+	  }, {
+	    key: 'onMouseLeave',
+	    value: function onMouseLeave(i) {
+	      this.setState({ isHovered: false });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      var btnClass = classNames({
+	        square: true,
+	        availableSquare: this.state.isHovered
+	      });
+
+	      return _react2.default.createElement(
+	        'button',
+	        { className: btnClass,
+	          onClick: function onClick() {
+	            return _this2.props.onClick();
+	          },
+	          onMouseOver: function onMouseOver() {
+	            return _this2.onMouseOver();
+	          },
+	          onMouseLeave: function onMouseLeave() {
+	            return _this2.onMouseLeave();
+	          }
+	        },
+	        this.props.value
+	      );
+	    }
+	  }]);
+
+	  return Square;
+	}(_react2.default.Component);
+
 	//// BOARD //////
 
-	var Board = function (_React$Component) {
-	  _inherits(Board, _React$Component);
+
+	var Board = function (_React$Component2) {
+	  _inherits(Board, _React$Component2);
 
 	  function Board() {
 	    _classCallCheck(this, Board);
 
-	    var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this));
+	    var _this3 = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this));
 
-	    _this.state = {
+	    _this3.state = {
+	      gameStarted: false,
 	      gameOver: false,
+	      player: null,
+	      computer: null,
 	      squares: Array(9).fill(null),
 	      xNext: true,
 	      lines: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
 	    };
-	    _this.winner = null;
-	    return _this;
+	    _this3.winner = null;
+	    _this3.baseState = _this3.state;
+	    return _this3;
 	  }
 
 	  _createClass(Board, [{
 	    key: 'handleClick',
 	    value: function handleClick(i) {
-	      var squares = this.state.squares.slice(); ///copy the squares array instead of mutating original
-	      if (this.state.gameOver || this.state.squares[i] !== null) {
+	      if (!this.state.gameStarted) {
 	        return;
-	      }
+	      } else {
+	        var squares = this.state.squares.slice(); ///copy the squares array instead of mutating original
+	        if (this.state.gameOver || this.state.squares[i] !== null) {
+	          // prevent clicks on already selected squares
+	          return;
+	        }
 
-	      squares[i] = this.state.xNext ? 'X' : 'O';
-	      this.setState({ squares: squares,
-	        xNext: !this.state.xNext
+	        squares[i] = this.state.player;
+	        this.setState({ squares: squares,
+	          xNext: !this.state.xNext
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'selectClick',
+	    value: function selectClick(e) {
+	      console.dir(e.target.dataset);
+
+	      this.setState({ player: e.target.dataset.player,
+	        computer: e.target.dataset.comp,
+	        gameStarted: true
 	      });
 	    }
 	  }, {
 	    key: 'componentDidUpdate',
 	    value: function componentDidUpdate() {
-	      var _this2 = this;
+	      var _this4 = this;
 
 	      if (!this.state.gameOver) {
 	        this.winner = this.calculateWinner(this.state.squares);
@@ -135,10 +230,10 @@
 	      }
 	      if (this.state.xNext === false) {
 	        setTimeout(function () {
-	          if (!_this2.state.gameOver) {
-	            _this2.computerMove();
+	          if (!_this4.state.gameOver) {
+	            _this4.computerMove();
 	          }
-	        }, 500);
+	        }, 1500);
 	      }
 	    }
 	  }, {
@@ -161,7 +256,7 @@
 
 	      console.log(selection);
 	      var squares = this.state.squares.slice();
-	      squares[selection] = 'O';
+	      squares[selection] = this.state.computer;
 	      this.setState({ squares: squares,
 	        xNext: !this.state.xNext
 	      });
@@ -169,8 +264,9 @@
 	  }, {
 	    key: 'blockOrCompleteLine',
 	    value: function blockOrCompleteLine() {
-	      var _this3 = this;
+	      var _this5 = this;
 
+	      // simple AI for computer
 	      // iterate through state.lines 
 	      var memIndex, choice;
 	      this.state.lines.forEach(function (straight) {
@@ -180,18 +276,15 @@
 	        var x = 0;
 	        var o = 0;
 	        straight.forEach(function (cell, index) {
-	          // console.log(this.state.squares[cell]);
-	          if (_this3.state.squares[cell] === null) {
+	          if (_this5.state.squares[cell] === null) {
 	            empty++;
 	            memIndex = index;
-	          } else if (_this3.state.squares[cell] === 'X') {
+	          } else if (_this5.state.squares[cell] === 'X') {
 	            x++;
-	          } else if (_this3.state.squares[cell] === 'O') {
+	          } else if (_this5.state.squares[cell] === 'O') {
 	            o++;
 	          }
 	          if ((x === 2 || o === 2) && empty === 1) {
-	            // console.log(straight + " is the choice at " + memIndex);
-	            // console.log(straight[memIndex]);
 	            choice = straight[memIndex];
 	          }
 	        });
@@ -205,19 +298,31 @@
 	  }, {
 	    key: 'statusMessage',
 	    value: function statusMessage() {
+	      var _this6 = this;
+
 	      if (this.state.gameOver) {
 	        return this.winner ? 'The winner is: ' + this.winner : 'There was no winner....';
 	      } else {
-	        return 'Next player: ' + (this.state.xNext ? 'X' : 'O');
+	        if (this.state.player !== null) {
+	          if (this.state.xNext) {
+	            return this.state.player + ' : Your turn';
+	          } else {
+	            return this.state.computer + ': Computers turn';
+	          }
+	        } else {
+	          return _react2.default.createElement(PlayerSelect, { onClick: function onClick(e) {
+	              return _this6.selectClick(e);
+	            } });
+	        }
 	      }
 	    }
 	  }, {
 	    key: 'renderSquare',
 	    value: function renderSquare(i) {
-	      var _this4 = this;
+	      var _this7 = this;
 
 	      return _react2.default.createElement(Square, { value: this.state.squares[i], onClick: function onClick() {
-	          return _this4.handleClick(i);
+	          return _this7.handleClick(i);
 	        } });
 	    }
 	  }, {
@@ -240,7 +345,14 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _this8 = this;
+
 	      var status = this.statusMessage();
+	      if (this.state.gameOver) {
+	        setTimeout(function () {
+	          _this8.setState(_this8.baseState);
+	        }, 3000);
+	      }
 
 	      return _react2.default.createElement(
 	        'div',
@@ -278,8 +390,8 @@
 	  return Board;
 	}(_react2.default.Component);
 
-	var Game = function (_React$Component2) {
-	  _inherits(Game, _React$Component2);
+	var Game = function (_React$Component3) {
+	  _inherits(Game, _React$Component3);
 
 	  function Game() {
 	    _classCallCheck(this, Game);
@@ -315,7 +427,7 @@
 
 	_reactDom2.default.render(_react2.default.createElement(Game, null), document.getElementById('container'));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/motbook/Sites/tic-tac-toe/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "game.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kingston/Sites/Tic Tac Toe/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "game.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 1 */
@@ -21786,7 +21898,7 @@
 
 
 	// module
-	exports.push([module.id, "body {\n  font: 14px \"Century Gothic\", Futura, sans-serif;\n  margin: 20px; }\n\nol, ul {\n  padding-left: 30px; }\n\n.board-row {\n  display: flex; }\n\n.status {\n  margin-bottom: 10px; }\n\n.square {\n  flex: 1 1 33%;\n  background: #fff;\n  font-size: 24px;\n  font-weight: bold;\n  line-height: 34px;\n  height: 105px;\n  margin-right: -1px;\n  margin-top: -1px;\n  padding: 0;\n  text-align: center; }\n\nbutton {\n  border: none; }\n\n.square:nth-child(2) {\n  border-left: 6px solid #222;\n  border-right: 7px solid #222; }\n\n.game-board > div .board-row:nth-child(2) {\n  background: red;\n  border-bottom: 6px solid #111; }\n\n.game-board > div .board-row:nth-child(3) {\n  background: red;\n  border-bottom: 6px solid #111; }\n\n.horizontal {\n  background-color: black;\n  width: 315px;\n  height: 5px; }\n\n.vertical {\n  background-color: black;\n  width: 5px;\n  height: 315px; }\n\n.square:focus {\n  outline: none; }\n\n.game {\n  width: 315px;\n  margin: 1em auto; }\n\n.game-info {\n  margin-left: 20px; }\n", ""]);
+	exports.push([module.id, "body {\n  font: 14px \"Century Gothic\", Futura, sans-serif;\n  margin: 20px; }\n\nol, ul {\n  padding-left: 30px; }\n\n.playerSelect-btn {\n  background: #EEE;\n  padding: .5em;\n  font-size: 1em; }\n\n.board-row {\n  display: flex; }\n\n.status {\n  min-height: 30px;\n  text-align: center;\n  font-size: 1.6em;\n  margin-bottom: 20px; }\n  .status button {\n    padding-top: 0;\n    padding-bottom: 0; }\n    .status button:hover {\n      background: #DFD;\n      cursor: pointer; }\n\n.square {\n  flex: 1 1 33%;\n  background: #fff;\n  font-size: 24px;\n  font-weight: bold;\n  line-height: 34px;\n  height: 105px;\n  margin-right: -1px;\n  margin-top: -1px;\n  padding: 0;\n  text-align: center; }\n\n.availableSquare {\n  background: #dfd; }\n\nbutton {\n  border: none; }\n\n.square:nth-child(2) {\n  border-left: 6px solid #222;\n  border-right: 7px solid #222; }\n\n.game-board > div .board-row:nth-child(2) {\n  background: red;\n  border-bottom: 6px solid #111; }\n\n.game-board > div .board-row:nth-child(3) {\n  background: red;\n  border-bottom: 6px solid #111; }\n\n.horizontal {\n  background-color: black;\n  width: 315px;\n  height: 5px; }\n\n.vertical {\n  background-color: black;\n  width: 5px;\n  height: 315px; }\n\n.square:focus {\n  outline: none; }\n\n.game {\n  width: 315px;\n  margin: 1em auto; }\n\n.game-info {\n  margin-left: 20px; }\n", ""]);
 
 	// exports
 
@@ -22097,6 +22209,60 @@
 		if(oldSrc)
 			URL.revokeObjectURL(oldSrc);
 	}
+
+
+/***/ },
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+
+	(function () {
+		'use strict';
+
+		var hasOwn = {}.hasOwnProperty;
+
+		function classNames () {
+			var classes = [];
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+
+			return classes.join(' ');
+		}
+
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
 
 
 /***/ }
